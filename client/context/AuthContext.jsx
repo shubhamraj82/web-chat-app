@@ -1,6 +1,6 @@
-import { Children, createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import axios from "axios";
-import toast  from "react"
+import toast from "react-hot-toast";
 import {io} from "socket.io-client"
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
@@ -8,7 +8,7 @@ axios.defaults.baseURL=backendURL;
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ Children }) => {
+export const AuthProvider = ({ children }) => {
 
     const [token,setToken]= useState(localStorage.getItem("token"));
     const [authUser,setAuthUser] = useState(null);
@@ -17,6 +17,9 @@ export const AuthProvider = ({ Children }) => {
 
     // check if user is authenticated and if so , set the user data and connect the socket
     const checkAuth=async()=>{
+        // Only check auth if token exists
+        if(!token) return;
+        
         try {
             const {data} = await axios.get("/api/auth/check-auth");
             if(data.success){
@@ -24,7 +27,10 @@ export const AuthProvider = ({ Children }) => {
                 connectsocket(data.user);
             }
         } catch (error) {
-            toast.error(error.message);
+            console.error("Auth check failed:", error);
+            // Clear invalid token
+            localStorage.removeItem("token");
+            setToken(null);
         }
     }
 
@@ -59,6 +65,17 @@ export const AuthProvider = ({ Children }) => {
     }
 
     // update profile function to handle user profile updates
+    const updateProfile = async (body)=>{
+        try {
+            const {data}= await axios.put("/api/auth/update-profile", body);
+            if(data.success){
+                setAuthUser(data.user);
+                toast.success("profile updated successfully");
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    }
 
 
     // connect socket function to handle socket connection and online users updates
@@ -85,12 +102,15 @@ export const AuthProvider = ({ Children }) => {
         axios,
         authUser,
         onlineUsers,
-        socket
+        socket,
+        login,
+        logout,
+        updateProfile,
     }
 
     return (
         <AuthContext.Provider value={value}>
-            {Children}
+            {children}
         </AuthContext.Provider>
     )
 }
