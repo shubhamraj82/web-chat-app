@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import assets from '../assets/assets'
 import { useState } from 'react'
+import { AuthContext } from '../../context/AuthContext'
 
 const LoginPage = () => {
 
@@ -11,6 +12,8 @@ const LoginPage = () => {
   const [bio,setBio]=useState("")
   const [isDataSubmitted,setIsDataSubmitted]=useState(false)
 
+  const { login }=useContext(AuthContext);
+
   const onSubmitHandler=(event)=>{
     event.preventDefault();
     
@@ -18,6 +21,8 @@ const LoginPage = () => {
       setIsDataSubmitted(true)
       return;
     }
+    // server expects `fullname` (lowercase) in the request body
+    login(currentState === "sign up" ? 'signup' : 'login',{fullname: fullName,email,password,bio});
   }
 
   return (
@@ -64,10 +69,10 @@ const LoginPage = () => {
      <div>
       { currentState==="sign up" ?(
         <p className='text-sm text-gray-600'>Already have an account? 
-        <span onClick={()=>{setCurrentState("Login"); setIsDataSubmitted(false)}} className='font-medium text-violet-500 cursor-pointer'>Login here</span></p>
+        <span onClick={()=>{setCurrentState("login"); setIsDataSubmitted(false)}} className='font-medium text-violet-500 cursor-pointer'>Login here</span></p>
       ):(
         <p className='text-sm text-gray-600'>Create an account
-        <span onClick={()=>setCurrentState("sign up")} className='font-medium text-violet-500 cursor-pointer'>Click here</span></p>
+        <span onClick={()=>{setCurrentState("sign up"); setIsDataSubmitted(false)}} className='font-medium text-violet-500 cursor-pointer'>Click here</span></p>
       )}
      </div>
 
