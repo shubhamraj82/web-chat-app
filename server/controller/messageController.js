@@ -60,7 +60,7 @@ export const getUserForSidebar=async(req,res)=>{
 //send message to selected user
 export const sendMessage = async (req,res)=>{
     try {
-        const { text , image}=req.params;
+        const { text , image}=req.body;
         const receiverId=req.params.id;
         const senderId=req.user._id;
 
@@ -81,7 +81,7 @@ export const sendMessage = async (req,res)=>{
         if(receiverSocketId){
             io.to(receiverSocketId).emit("newMessage",newMessage)
         }
-        res.json({success:true,newMessage});
+        res.json({success:true,message:newMessage});
     } catch (error) {
         console.log(error.message);
         res.json({success:false,message:error.message})

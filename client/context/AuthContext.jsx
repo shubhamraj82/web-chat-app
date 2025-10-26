@@ -23,8 +23,12 @@ export const AuthProvider = ({ children }) => {
         try {
             const {data} = await axios.get("/api/auth/check-auth");
             if(data.success){
-                setAuthUser(data.user)
-                connectsocket(data.user);
+                const mappedUser = {
+                    ...data.user,
+                    fullName: data.user.fullname
+                };
+                setAuthUser(mappedUser)
+                connectsocket(mappedUser);
             }
         } catch (error) {
             console.error("Auth check failed:", error);
@@ -39,8 +43,12 @@ export const AuthProvider = ({ children }) => {
         try {
             const {data} =  await axios.post(`/api/auth/${state}`, credentials);
             if(data.success){
-                setAuthUser(data.userData);
-                connectsocket(data.userData);
+                const mappedUser = {
+                    ...data.userData,
+                    fullName: data.userData.fullname
+                };
+                setAuthUser(mappedUser);
+                connectsocket(mappedUser);
                 axios.defaults.headers.common["token"]=data.token;
                 setToken(data.token);
                 localStorage.setItem("token", data.token);
@@ -61,7 +69,9 @@ export const AuthProvider = ({ children }) => {
         setOnlineUsers([]);
         axios.defaults.headers.common["token"]=null;
         toast.success("Logged out successfully");
-        socket.disconnect();
+        if(socket?.connected){
+            socket.disconnect();
+        }
     }
 
     // update profile function to handle user profile updates
@@ -69,7 +79,11 @@ export const AuthProvider = ({ children }) => {
         try {
             const {data}= await axios.put("/api/auth/update-profile", body);
             if(data.success){
-                setAuthUser(data.user);
+                const mappedUser = {
+                    ...data.user,
+                    fullName: data.user.fullname
+                };
+                setAuthUser(mappedUser);
                 toast.success("profile updated successfully");
             }
         } catch (error) {
@@ -86,6 +100,7 @@ export const AuthProvider = ({ children }) => {
                 userId:userData._id,
             }
         });
+        setSocket(newSocket);
         newSocket.on("getOnlineUsers",(userIds)=>{
             setOnlineUsers(userIds);
         })

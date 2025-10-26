@@ -1,10 +1,10 @@
-import { Children, createContext,useContext,useEffect,useState } from "react";
+import { createContext,useContext,useEffect,useState } from "react";
 import { AuthContext } from "./AuthContext";
 import toast from "react-hot-toast";
 
 export const chatContext=createContext();
 
-export const ChatProvider=({Children})=>{
+export const ChatProvider=({children})=>{
 
     const [messages,setMessages]=useState([]);
     const [users,setUsers]=useState([]);
@@ -18,7 +18,12 @@ export const ChatProvider=({Children})=>{
         try {
             const {data}=await axios.get("/api/messages/users");
             if(data.success){
-                setUsers(data.users);
+                // Map backend fullname to frontend fullName
+                const mappedUsers = data.users.map(user => ({
+                    ...user,
+                    fullName: user.fullname
+                }));
+                setUsers(mappedUsers);
                 setUnseenMessages(data.unseenMessages);
             }
         } catch (error) {
@@ -86,7 +91,7 @@ export const ChatProvider=({Children})=>{
     }
     return (
         <chatContext.Provider value={value}>
-            {Children}
+            {children}
         </chatContext.Provider>
     )
 }
