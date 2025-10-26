@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     // logout function to handle user logout and socket disconnection
     const logout=()=>{
         localStorage.removeItem("token");
-        setAuthUser(nulll);
+        setAuthUser(null);
         setToken(null);
         setOnlineUsers([]);
         axios.defaults.headers.common["token"]=null;
