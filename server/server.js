@@ -6,6 +6,7 @@ import { connectDB } from "./lib/db.js";
 import userRouter from "./routes/userRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
 import {Server} from "socket.io";
+import { console } from "inspector";
 
 // Create HTTP server and express app
 const app= express();
@@ -22,8 +23,8 @@ export const userSocketMap={}; // {userId:socketId}
 // socket.io connection handler
 io.on("connection", (socket)=>{
     const userId=socket.handshake.query.userId;
-    console.log("User Connected ", userId);
-
+    console.log("User Connected ", userId); 
+   
     if(userId) userSocketMap[userId]=socket.id;
 
     // Emit online users to all connected clients
